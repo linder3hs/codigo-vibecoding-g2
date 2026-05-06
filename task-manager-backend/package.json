@@ -1,0 +1,18 @@
+{
+  "name": "task-manager-backend",
+  "version": "1.0.0",
+  "description": "Backend de Task Manager",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "uuid": "^11.0.0"
+  }
+}
