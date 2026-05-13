@@ -58,6 +58,70 @@ npm run dev
 
 ---
 
+### Clase 03 — Task Manager Frontend
+
+> Construimos la interfaz de usuario con React, TypeScript y Tailwind CSS.
+
+| Archivo | Qué contiene |
+| --- | --- |
+| [¿Qué es el Frontend?](./clase-03/01-que-es-el-frontend.md) | Frontend vs backend, el stack elegido |
+| [React y TypeScript](./clase-03/02-react-typescript.md) | Componentes, props, estado, hooks, JSX |
+| [Vite y Tailwind](./clase-03/03-vite-tailwind.md) | Herramientas de desarrollo y estilos |
+| [Estructura del Proyecto](./clase-03/04-estructura-proyecto.md) | Componentes, páginas, services — cómo encaja todo |
+| [Glosario de la Clase](./clase-03/glosario-clase-03.md) | Todos los términos de React, TypeScript y web |
+| [Código del proyecto](./task-manager-frontend/) | Frontend completo — React + TypeScript + Vite |
+
+**Qué construimos:**
+- SPA con React 19 + TypeScript + Vite + Tailwind CSS v4
+- Lista de tareas con crear, editar, eliminar y toggle de completado
+- Página de login con validación en tiempo real
+- Página de detalle de tarea con React Router
+- Capa de servicios con Axios para comunicarse con el backend
+
+**Para correr el proyecto:**
+```bash
+cd task-manager-frontend
+npm install
+npm run dev
+# App en http://localhost:5173
+# (requiere backend corriendo en localhost:3000)
+```
+
+---
+
+### Clase 04 — Backend Evolucionado
+
+> Migramos de memoria local a PostgreSQL con Prisma, y agregamos autenticación de usuarios.
+
+| Archivo | Qué contiene |
+| --- | --- |
+| [Bases de Datos y PostgreSQL](./clase-04/01-base-de-datos-postgresql.md) | Por qué necesitamos BD, tablas, relaciones, SQL |
+| [Prisma ORM](./clase-04/02-prisma-orm.md) | Schema, migraciones, Prisma Client, operaciones CRUD |
+| [Autenticación](./clase-04/03-autenticacion.md) | bcrypt, hash de contraseñas, registro, login, tokens |
+| [Swagger](./clase-04/04-swagger.md) | Documentación interactiva de la API |
+| [Glosario de la Clase](./clase-04/glosario-clase-04.md) | BD, ORM, auth, JWT, variables de entorno |
+| [Código del proyecto](./task-manager-backend/) | Backend actualizado — Node.js + Express + Prisma + PostgreSQL |
+
+**Qué construimos:**
+- Migración de arrays en memoria a PostgreSQL con Prisma ORM
+- Modelos `User` y `Task` con relación entre ellos
+- Migraciones versionadas con Prisma Migrate
+- Módulo de usuarios: registro con bcrypt + login con token
+- Documentación Swagger actualizada con endpoints de usuarios
+
+**Para correr el proyecto:**
+```bash
+cd task-manager-backend
+npm install
+# Configurar DATABASE_URL en .env
+npx prisma migrate dev
+npm run dev
+# API en http://localhost:3000
+# Docs en http://localhost:3000/api-docs
+```
+
+---
+
 ## ¿Por dónde empezar?
 
 Si es tu primera vez, sigue las clases **en orden**.

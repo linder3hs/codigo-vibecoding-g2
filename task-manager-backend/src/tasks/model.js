@@ -1,43 +1,38 @@
-import { v4 as uuidv4 } from 'uuid';
-
-const tasks = [];
+import prisma from '../lib/prisma.js'
 
 const TaskModel = {
-  getAll: () => tasks,
-
-  getById: (id) => tasks.find(task => task.id === id),
-
-  create: (data) => {
-    const newTask = {
-      id: uuidv4(),
-      title: data.title,
-      description: data.description || '',
-      completed: data.completed || false,
-      created_at: new Date().toISOString()
-    };
-    tasks.push(newTask);
-    return newTask;
+  getAll: async () => {
+    return await prisma.task.findMany()
   },
 
-  update: (id, data) => {
-    const index = tasks.findIndex(task => task.id === id);
-    if (index === -1) return null;
-
-    tasks[index] = {
-      ...tasks[index],
-      ...data,
-      id: tasks[index].id,
-      created_at: tasks[index].created_at
-    };
-    return tasks[index];
+  getById: async (id) => {
+    return await prisma.task.findUnique({ where: { id } })
   },
 
-  delete: (id) => {
-    const index = tasks.findIndex(task => task.id === id);
-    if (index === -1) return false;
-    tasks.splice(index, 1);
-    return true;
-  }
-};
+  create: async (data) => {
+    return await prisma.task.create({
+      data: {
+        title: data.title,
+        description: data.description || '',
+        completed: data.completed || false,
+      },
+    })
+  },
 
-export default TaskModel;
+  update: async (id, data) => {
+    return await prisma.task.update({
+      where: { id },
+      data: {
+        ...(data.title !== undefined && { title: data.title }),
+        ...(data.description !== undefined && { description: data.description }),
+        ...(data.completed !== undefined && { completed: data.completed }),
+      },
+    })
+  },
+
+  delete: async (id) => {
+    return await prisma.task.delete({ where: { id } })
+  },
+}
+
+export default TaskModel
