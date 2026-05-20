@@ -1,25 +1,46 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { loginUser } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export function Login() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [apiError, setApiError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const validateEmail = (value: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
       setEmailError("Por favor ingresa un correo válido");
     } else {
       setEmailError("");
     }
     setEmail(value);
+    setApiError("");
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login:", { email, password });
+    setLoading(true);
+    setApiError("");
+    try {
+      const { token, user } = await loginUser(email, password);
+      login(token, user);
+      navigate("/");
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { error?: string } } })?.response?.data
+          ?.error ?? "Error al iniciar sesión. Intenta de nuevo.";
+      setApiError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const isEmailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -33,6 +54,12 @@ export function Login() {
         <p className="text-center text-gray-500 mb-8">
           Inicia sesión para continuar
         </p>
+
+        {apiError && (
+          <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+            {apiError}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -67,7 +94,10 @@ export function Login() {
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setApiError("");
+                }}
                 placeholder="••••••••"
                 className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all"
               />
@@ -87,12 +117,22 @@ export function Login() {
 
           <button
             type="submit"
-            disabled={!isEmailValid || password.length === 0}
+            disabled={!isEmailValid || password.length === 0 || loading}
             className="w-full py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
           >
-            Iniciar sesión
+            {loading ? "Ingresando..." : "Iniciar sesión"}
           </button>
         </form>
+
+        <p className="text-center text-sm text-gray-500 mt-6">
+          ¿No tienes cuenta?{" "}
+          <Link
+            to="/register"
+            className="text-indigo-600 font-medium hover:underline"
+          >
+            Regístrate
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -3,7 +3,7 @@ import TaskModel from "./model.js";
 const TaskController = {
   getAll: async (req, res) => {
     try {
-      const tasks = await TaskModel.getAll();
+      const tasks = await TaskModel.getAll(req.userId);
       res.json(tasks);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -12,7 +12,7 @@ const TaskController = {
 
   getById: async (req, res) => {
     try {
-      const task = await TaskModel.getById(req.params.id);
+      const task = await TaskModel.getById(req.params.id, req.userId);
       if (!task) {
         return res.status(404).json({ error: "Task not found" });
       }
@@ -24,7 +24,7 @@ const TaskController = {
 
   create: async (req, res) => {
     try {
-      const newTask = await TaskModel.create(req.body);
+      const newTask = await TaskModel.create(req.body, req.userId);
       res.status(201).json(newTask);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -33,10 +33,11 @@ const TaskController = {
 
   update: async (req, res) => {
     try {
-      const task = await TaskModel.update(req.params.id, req.body);
-      if (!task) {
+      const result = await TaskModel.update(req.params.id, req.body, req.userId);
+      if (result.count === 0) {
         return res.status(404).json({ error: "Task not found" });
       }
+      const task = await TaskModel.getById(req.params.id, req.userId);
       res.json(task);
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -45,8 +46,8 @@ const TaskController = {
 
   delete: async (req, res) => {
     try {
-      const deleted = await TaskModel.delete(req.params.id);
-      if (!deleted) {
+      const result = await TaskModel.delete(req.params.id, req.userId);
+      if (result.count === 0) {
         return res.status(404).json({ error: "Task not found" });
       }
       res.status(204).send();

@@ -1,8 +1,8 @@
+import jwt from 'jsonwebtoken';
 import UserModel from './model.js';
 
-const generateToken = (user) => {
-  const payload = `${user.id}:${user.email}`;
-  return Buffer.from(payload).toString('base64');
+const generateToken = (userId) => {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '7d' });
 };
 
 const UserController = {
@@ -42,7 +42,7 @@ const UserController = {
       }
 
       const { password: _, ...userWithoutPassword } = user;
-      const token = generateToken(user);
+      const token = generateToken(user.id);
       
       res.json({ user: userWithoutPassword, token });
     } catch (error) {

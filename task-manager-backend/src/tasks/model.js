@@ -1,27 +1,28 @@
 import prisma from '../lib/prisma.js'
 
 const TaskModel = {
-  getAll: async () => {
-    return await prisma.task.findMany()
+  getAll: async (userId) => {
+    return await prisma.task.findMany({ where: { userId } })
   },
 
-  getById: async (id) => {
-    return await prisma.task.findUnique({ where: { id } })
+  getById: async (id, userId) => {
+    return await prisma.task.findFirst({ where: { id, userId } })
   },
 
-  create: async (data) => {
+  create: async (data, userId) => {
     return await prisma.task.create({
       data: {
         title: data.title,
         description: data.description || '',
         completed: data.completed || false,
+        userId,
       },
     })
   },
 
-  update: async (id, data) => {
-    return await prisma.task.update({
-      where: { id },
+  update: async (id, data, userId) => {
+    return await prisma.task.updateMany({
+      where: { id, userId },
       data: {
         ...(data.title !== undefined && { title: data.title }),
         ...(data.description !== undefined && { description: data.description }),
@@ -30,8 +31,8 @@ const TaskModel = {
     })
   },
 
-  delete: async (id) => {
-    return await prisma.task.delete({ where: { id } })
+  delete: async (id, userId) => {
+    return await prisma.task.deleteMany({ where: { id, userId } })
   },
 }
 
