@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Logística API — Schema de Base de Datos</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #21253a;
+      --border: #2e3352;
+      --accent: #6366f1;
+      --accent2: #818cf8;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --blue: #60a5fa;
+      --purple: #a78bfa;
+      --pink: #f472b6;
+      --text: #e2e8f0;
+      --text2: #94a3b8;
+      --text3: #64748b;
+      --tag-bg: #1e2235;
+      --radius: 10px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      padding: 40px 24px 80px;
+    }
+
+    /* ── Header ─────────────────────────────── */
+    header {
+      max-width: 1200px;
+      margin: 0 auto 48px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 32px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.5px;
+    }
+
+    header h1 span {
+      color: var(--accent2);
+    }
+
+    header p {
+      color: var(--text2);
+      margin-top: 6px;
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    .badge-django   { background: #064e3b; color: var(--green); }
+    .badge-app      { background: #1e1b4b; color: var(--accent2); }
+    .badge-pk       { background: #1c1917; color: var(--yellow); }
+    .badge-fk       { background: #1c1917; color: var(--blue); }
+    .badge-unique   { background: #1c1917; color: var(--purple); }
+    .badge-nullable { background: #1c1917; color: var(--text3); }
+    .badge-soft     { background: #1c1917; color: var(--pink); }
+
+    /* ── Layout ──────────────────────────────── */
+    .main {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    /* ── Section titles ──────────────────────── */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text3);
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Tables grid ─────────────────────────── */
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+      gap: 24px;
+    }
+
+    /* ── Table card ──────────────────────────── */
+    .table-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .table-card.highlight {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 4px 24px rgba(99, 102, 241, 0.12);
+    }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .table-name {
+      font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .table-desc {
+      font-size: 11px;
+      color: var(--text3);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+
+    /* ── Schema table ────────────────────────── */
+    .schema-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .schema-table th {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text3);
+      padding: 8px 18px;
+      text-align: left;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .schema-table td {
+      padding: 9px 18px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .schema-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .schema-table tr:hover td {
+      background: rgba(99, 102, 241, 0.04);
+    }
+
+    .col-name {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .col-name.is-pk { color: var(--yellow); }
+    .col-name.is-fk { color: var(--blue); }
+
+    .col-type {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 11px;
+      color: var(--accent2);
+    }
+
+    .col-constraints {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .col-desc {
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    /* ── Constraints note ────────────────────── */
+    .constraint-note {
+      padding: 10px 18px;
+      background: rgba(99, 102, 241, 0.06);
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--accent2);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── Relations section ───────────────────── */
+    .relations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 12px;
+    }
+
+    .relation-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .rel-from {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--blue);
+      font-weight: 600;
+    }
+
+    .rel-arrow {
+      color: var(--text3);
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .rel-to {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .rel-type {
+      margin-left: auto;
+      flex-shrink: 0;
+    }
+
+    .rel-detail {
+      font-size: 11px;
+      color: var(--text3);
+      margin-top: 3px;
+    }
+
+    .rel-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ── ERD Diagram ─────────────────────────── */
+    .erd-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      overflow-x: auto;
+    }
+
+    .erd-wrapper pre {
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.8;
+      white-space: pre;
+    }
+
+    .erd-wrapper pre .hl { color: var(--accent2); font-weight: 600; }
+    .erd-wrapper pre .arrow { color: var(--green); }
+
+    /* ── SVG ERD ─────────────────────────────── */
+    .erd-svg-wrapper {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      overflow-x: auto;
+      display: flex;
+      justify-content: center;
+    }
+
+    svg.erd text { font-family: 'JetBrains Mono', monospace; }
+
+    /* ── Legend ──────────────────────────────── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding: 16px 0;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Logística API — <span>Schema de Base de Datos</span></h1>
+  <p>8 tablas propias · 3 tablas Django built-in · Django 6 + DRF 3.17 · SQLite (dev) / PostgreSQL (prod)</p>
+</header>
+
+<div class="main">
+
+  <!-- ── Legend ─────────────────────────────────────── -->
+  <div>
+    <div class="section-title">Leyenda de columnas</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div> Primary Key</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#60a5fa"></div> Foreign Key</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div> UNIQUE</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#64748b"></div> Nullable</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f472b6"></div> Soft Delete</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#34d399"></div> Auto-generated</div>
+    </div>
+  </div>
+
+  <!-- ── Django built-in tables ─────────────────────── -->
+  <div>
+    <div class="section-title">Tablas Django (built-in)</div>
+    <div class="tables-grid">
+
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-icon" style="background:#064e3b">🔐</div>
+          <span class="table-name">auth_user</span>
+          <span class="table-desc badge badge-django">django built-in</span>
+        </div>
+        <table class="schema-table">
+          <thead>
+            <tr><th>Columna</th><th>Tipo</th><th>Notas</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="col-name is-pk">id</span></td>
+              <td><span class="col-type">INTEGER</span></td>
+              <td><span class="badge badge-pk">PK</span></td>
+            </tr>
+            <tr>
+              <td><span class="col-name">username</span></td>
+              <td><span class="col-type">VARCHAR(150)</span></td>
+              <td><span class="badge badge-unique">UNIQUE</span></td>
+            </tr>
+            <tr>
+              <td><span class="col-name">first_name</span></td>
+              <td><span class="col-type">VARCHAR(150)</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><span class="col-name">last_name</span></td>
+              <td><span class="col-type">VARCHAR(150)</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><span class="col-name">email</span></td>
+              <td><span class="col-type">VARCHAR(254)</span></td>
+              <td></td>
+            </tr>
+            <tr>
+              <td><span class="col-name">password</span></td>
+              <td><span class="col-type">VARCHAR(128)</span></td>
+              <td><span class="col-desc">bcrypt hash</span></td>
+            </tr>
+            <tr>
+              <td><span class="col-name">is_active</span></td>
+              <td><span class="col-type">BOOLEAN</span></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="constraint-note">Usado por: drivers (OneToOneField)</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Fase 1: sin dependencias ───────────────────── -->
+  <div>
+    <div class="section-title">Fase 1 — Sin dependencias externas</div>
+    <div class="tables-grid">
+
+      <!-- customers -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-icon" style="background:#1e3a5f">👤</div>
+          <span class="table-name">customers</span>
+          <span class="table-desc badge badge-app">apps.customers</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Columna</th><th>Tipo</th><th>Constraints / Notas</th></tr></thead>
+          <tbody>
+            <tr><td><span class="col-name is-pk">id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-pk">PK</span></td></tr>
+            <tr><td><span class="col-name">name</span></td><td><span class="col-type">VARCHAR(255)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">customer_type</span></td><td><span class="col-type">VARCHAR(10)</span></td><td><span class="col-desc">COMPANY | INDIVIDUAL</span></td></tr>
+            <tr><td><span class="col-name">tax_id</span></td><td><span class="col-type">VARCHAR(50)</span></td><td><span class="badge badge-unique">UNIQUE</span> <span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">email</span></td><td><span class="col-type">VARCHAR(254)</span></td><td><span class="badge badge-unique">UNIQUE</span></td></tr>
+            <tr><td><span class="col-name">phone</span></td><td><span class="col-type">VARCHAR(20)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">address</span></td><td><span class="col-type">VARCHAR(500)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">city</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">country</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">default=Colombia</span></td></tr>
+            <tr><td><span class="col-name">is_active</span></td><td><span class="col-type">BOOLEAN</span></td><td><span class="badge badge-soft">SOFT DELETE</span></td></tr>
+            <tr><td><span class="col-name">created_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now_add</span></td></tr>
+            <tr><td><span class="col-name">updated_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- warehouses -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-icon" style="background:#1c2a1e">🏭</div>
+          <span class="table-name">warehouses</span>
+          <span class="table-desc badge badge-app">apps.warehouses</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Columna</th><th>Tipo</th><th>Constraints / Notas</th></tr></thead>
+          <tbody>
+            <tr><td><span class="col-name is-pk">id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-pk">PK</span></td></tr>
+            <tr><td><span class="col-name">name</span></td><td><span class="col-type">VARCHAR(255)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">address</span></td><td><span class="col-type">VARCHAR(500)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">city</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">country</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">default=Colombia</span></td></tr>
+            <tr><td><span class="col-name">latitude</span></td><td><span class="col-type">DECIMAL(9,6)</span></td><td><span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">longitude</span></td><td><span class="col-type">DECIMAL(9,6)</span></td><td><span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">capacity_m3</span></td><td><span class="col-type">DECIMAL(10,2)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">is_active</span></td><td><span class="col-type">BOOLEAN</span></td><td><span class="badge badge-soft">SOFT DELETE</span></td></tr>
+            <tr><td><span class="col-name">created_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now_add</span></td></tr>
+            <tr><td><span class="col-name">updated_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- suppliers -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-icon" style="background:#2a1c1c">🏪</div>
+          <span class="table-name">suppliers</span>
+          <span class="table-desc badge badge-app">apps.suppliers</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Columna</th><th>Tipo</th><th>Constraints / Notas</th></tr></thead>
+          <tbody>
+            <tr><td><span class="col-name is-pk">id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-pk">PK</span></td></tr>
+            <tr><td><span class="col-name">name</span></td><td><span class="col-type">VARCHAR(255)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">tax_id</span></td><td><span class="col-type">VARCHAR(50)</span></td><td><span class="badge badge-unique">UNIQUE</span> <span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">contact_name</span></td><td><span class="col-type">VARCHAR(255)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">email</span></td><td><span class="col-type">VARCHAR(254)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">phone</span></td><td><span class="col-type">VARCHAR(20)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">address</span></td><td><span class="col-type">VARCHAR(500)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">city</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">country</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">default=Colombia</span></td></tr>
+            <tr><td><span class="col-name">is_active</span></td><td><span class="col-type">BOOLEAN</span></td><td><span class="badge badge-soft">SOFT DELETE</span></td></tr>
+            <tr><td><span class="col-name">created_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now_add</span></td></tr>
+            <tr><td><span class="col-name">updated_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- transport -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-icon" style="background:#1a1c2a">🚛</div>
+          <span class="table-name">transport</span>
+          <span class="table-desc badge badge-app">apps.transport</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Columna</th><th>Tipo</th><th>Constraints / Notas</th></tr></thead>
+          <tbody>
+            <tr><td><span class="col-name is-pk">id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-pk">PK</span></td></tr>
+            <tr><td><span class="col-name">plate_number</span></td><td><span class="col-type">VARCHAR(20)</span></td><td><span class="badge badge-unique">UNIQUE</span></td></tr>
+            <tr><td><span class="col-name">transport_type</span></td><td><span class="col-type">VARCHAR(20)</span></td><td><span class="col-desc">TRUCK | VAN | MOTORCYCLE | CARGO_BIKE</span></td></tr>
+            <tr><td><span class="col-name">brand</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">model</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">year</span></td><td><span class="col-type">INTEGER</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">capacity_kg</span></td><td><span class="col-type">DECIMAL(10,2)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">capacity_m3</span></td><td><span class="col-type">DECIMAL(8,2)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">is_available</span></td><td><span class="col-type">BOOLEAN</span></td><td><span class="col-desc">disponible para asignación</span></td></tr>
+            <tr><td><span class="col-name">created_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now_add</span></td></tr>
+            <tr><td><span class="col-name">updated_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Fase 2 ────────────────────────────────────── -->
+  <div>
+    <div class="section-title">Fase 2 — Dependen de Fase 1</div>
+    <div class="tables-grid">
+
+      <!-- products -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-icon" style="background:#1a2a1a">📦</div>
+          <span class="table-name">products</span>
+          <span class="table-desc badge badge-app">apps.products</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Columna</th><th>Tipo</th><th>Constraints / Notas</th></tr></thead>
+          <tbody>
+            <tr><td><span class="col-name is-pk">id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-pk">PK</span></td></tr>
+            <tr><td><span class="col-name is-fk">supplier_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → suppliers</span></td></tr>
+            <tr><td><span class="col-name is-fk">warehouse_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → warehouses</span></td></tr>
+            <tr><td><span class="col-name">name</span></td><td><span class="col-type">VARCHAR(255)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">sku</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="badge badge-unique">UNIQUE</span></td></tr>
+            <tr><td><span class="col-name">description</span></td><td><span class="col-type">TEXT</span></td><td><span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">category</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">weight_kg</span></td><td><span class="col-type">DECIMAL(8,3)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">width_cm</span></td><td><span class="col-type">DECIMAL(8,2)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">height_cm</span></td><td><span class="col-type">DECIMAL(8,2)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">depth_cm</span></td><td><span class="col-type">DECIMAL(8,2)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">unit_price</span></td><td><span class="col-type">DECIMAL(12,2)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">stock_quantity</span></td><td><span class="col-type">INTEGER</span></td><td><span class="col-desc">default=0</span></td></tr>
+            <tr><td><span class="col-name">is_active</span></td><td><span class="col-type">BOOLEAN</span></td><td><span class="badge badge-soft">SOFT DELETE</span></td></tr>
+            <tr><td><span class="col-name">created_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now_add</span></td></tr>
+            <tr><td><span class="col-name">updated_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- routes + route_stops -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-icon" style="background:#1a1e2a">🗺️</div>
+          <span class="table-name">routes</span>
+          <span class="table-desc badge badge-app">apps.routes</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Columna</th><th>Tipo</th><th>Constraints / Notas</th></tr></thead>
+          <tbody>
+            <tr><td><span class="col-name is-pk">id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-pk">PK</span></td></tr>
+            <tr><td><span class="col-name">name</span></td><td><span class="col-type">VARCHAR(255)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name is-fk">origin_warehouse_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → warehouses</span></td></tr>
+            <tr><td><span class="col-name">estimated_duration_hours</span></td><td><span class="col-type">DECIMAL(6,2)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">estimated_distance_km</span></td><td><span class="col-type">DECIMAL(10,2)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">is_active</span></td><td><span class="col-type">BOOLEAN</span></td><td><span class="badge badge-soft">SOFT DELETE</span></td></tr>
+            <tr><td><span class="col-name">created_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now_add</span></td></tr>
+            <tr><td><span class="col-name">updated_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now</span></td></tr>
+          </tbody>
+        </table>
+
+        <div style="border-top: 1px solid var(--border); padding: 10px 18px; background: var(--surface2); font-size: 11px; color: var(--text3); font-family: monospace; font-weight: 600; letter-spacing: 0.5px;">
+          NESTED → route_stops
+        </div>
+
+        <table class="schema-table">
+          <tbody>
+            <tr><td><span class="col-name is-pk">id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-pk">PK</span></td></tr>
+            <tr><td><span class="col-name is-fk">route_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → routes</span></td></tr>
+            <tr><td><span class="col-name">stop_order</span></td><td><span class="col-type">INTEGER</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">address</span></td><td><span class="col-type">VARCHAR(500)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">city</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">latitude</span></td><td><span class="col-type">DECIMAL(9,6)</span></td><td><span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">longitude</span></td><td><span class="col-type">DECIMAL(9,6)</span></td><td><span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">estimated_offset_hours</span></td><td><span class="col-type">DECIMAL(6,2)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+          </tbody>
+        </table>
+        <div class="constraint-note">UNIQUE TOGETHER: (route_id, stop_order)</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Fase 3 ────────────────────────────────────── -->
+  <div>
+    <div class="section-title">Fase 3 — Depende de auth_user + transport</div>
+    <div class="tables-grid">
+
+      <!-- drivers -->
+      <div class="table-card highlight">
+        <div class="table-header">
+          <div class="table-icon" style="background:#1e1b3a">🧑‍✈️</div>
+          <span class="table-name">drivers</span>
+          <span class="table-desc badge badge-app">apps.drivers</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Columna</th><th>Tipo</th><th>Constraints / Notas</th></tr></thead>
+          <tbody>
+            <tr><td><span class="col-name is-pk">id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-pk">PK</span></td></tr>
+            <tr><td><span class="col-name is-fk">user_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → auth_user</span> <span class="badge badge-unique">OneToOne</span></td></tr>
+            <tr><td><span class="col-name is-fk">transport_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → transport</span> <span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">license_number</span></td><td><span class="col-type">VARCHAR(50)</span></td><td><span class="badge badge-unique">UNIQUE</span></td></tr>
+            <tr><td><span class="col-name">license_expiry</span></td><td><span class="col-type">DATE</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">phone</span></td><td><span class="col-type">VARCHAR(20)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">is_active</span></td><td><span class="col-type">BOOLEAN</span></td><td><span class="badge badge-soft">SOFT DELETE</span></td></tr>
+            <tr><td><span class="col-name">created_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now_add</span></td></tr>
+            <tr><td><span class="col-name">updated_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now</span></td></tr>
+          </tbody>
+        </table>
+        <div class="constraint-note">GET expone: user_full_name · user_email · user_username (via DriverReadSerializer)</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Fase 4 ────────────────────────────────────── -->
+  <div>
+    <div class="section-title">Fase 4 — Módulo central (depende de todo)</div>
+    <div class="tables-grid">
+
+      <!-- shipments -->
+      <div class="table-card highlight">
+        <div class="table-header">
+          <div class="table-icon" style="background:#1a1e1a">📬</div>
+          <span class="table-name">shipments</span>
+          <span class="table-desc badge badge-app">apps.shipments</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Columna</th><th>Tipo</th><th>Constraints / Notas</th></tr></thead>
+          <tbody>
+            <tr><td><span class="col-name is-pk">id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-pk">PK</span></td></tr>
+            <tr><td><span class="col-name">tracking_number</span></td><td><span class="col-type">VARCHAR(50)</span></td><td><span class="badge badge-unique">UNIQUE</span> <span style="font-size:11px;color:#34d399">auto uuid4</span></td></tr>
+            <tr><td><span class="col-name is-fk">customer_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → customers</span> PROTECT</td></tr>
+            <tr><td><span class="col-name is-fk">driver_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → drivers</span> <span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name is-fk">transport_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → transport</span> <span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name is-fk">route_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → routes</span> <span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name is-fk">origin_warehouse_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → warehouses</span> PROTECT</td></tr>
+            <tr><td><span class="col-name">destination_address</span></td><td><span class="col-type">VARCHAR(500)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">destination_city</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">destination_country</span></td><td><span class="col-type">VARCHAR(100)</span></td><td><span class="col-desc">default=Colombia</span></td></tr>
+            <tr><td><span class="col-name">status</span></td><td><span class="col-type">VARCHAR(20)</span></td><td><span class="col-desc">PENDING | CONFIRMED | IN_TRANSIT | DELIVERED | CANCELLED | RETURNED</span></td></tr>
+            <tr><td><span class="col-name">estimated_delivery_date</span></td><td><span class="col-type">DATE</span></td><td><span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">actual_delivery_date</span></td><td><span class="col-type">DATETIME</span></td><td><span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">weight_total_kg</span></td><td><span class="col-type">DECIMAL(10,3)</span></td><td><span class="col-desc">default=0</span></td></tr>
+            <tr><td><span class="col-name">base_cost</span></td><td><span class="col-type">DECIMAL(12,2)</span></td><td><span class="col-desc">default=0</span></td></tr>
+            <tr><td><span class="col-name">calculated_cost</span></td><td><span class="col-type">DECIMAL(12,2)</span></td><td><span class="col-desc">default=0</span></td></tr>
+            <tr><td><span class="col-name">notes</span></td><td><span class="col-type">TEXT</span></td><td><span class="badge badge-nullable">NULL</span></td></tr>
+            <tr><td><span class="col-name">created_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now_add</span></td></tr>
+            <tr><td><span class="col-name">updated_at</span></td><td><span class="col-type">DATETIME</span></td><td><span class="col-desc">auto_now</span></td></tr>
+          </tbody>
+        </table>
+
+        <div style="border-top: 1px solid var(--border); padding: 10px 18px; background: var(--surface2); font-size: 11px; color: var(--text3); font-family: monospace; font-weight: 600; letter-spacing: 0.5px;">
+          NESTED → shipment_items
+        </div>
+
+        <table class="schema-table">
+          <tbody>
+            <tr><td><span class="col-name is-pk">id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-pk">PK</span></td></tr>
+            <tr><td><span class="col-name is-fk">shipment_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → shipments</span> CASCADE</td></tr>
+            <tr><td><span class="col-name is-fk">product_id</span></td><td><span class="col-type">INTEGER</span></td><td><span class="badge badge-fk">FK → products</span> PROTECT</td></tr>
+            <tr><td><span class="col-name">quantity</span></td><td><span class="col-type">INTEGER</span></td><td><span class="col-desc">NOT NULL</span></td></tr>
+            <tr><td><span class="col-name">unit_price_at_time</span></td><td><span class="col-type">DECIMAL(12,2)</span></td><td><span class="col-desc">snapshot precio</span></td></tr>
+            <tr><td><span class="col-name">subtotal</span></td><td><span class="col-type">DECIMAL(12,2)</span></td><td><span class="col-desc">quantity × unit_price_at_time</span></td></tr>
+          </tbody>
+        </table>
+        <div class="constraint-note">UNIQUE TOGETHER: (shipment_id, product_id)</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Diagram ERD ────────────────────────────────── -->
+  <div>
+    <div class="section-title">Diagrama de relaciones (ERD)</div>
+    <div class="erd-svg-wrapper">
+      <svg class="erd" viewBox="0 0 860 560" width="860" height="560" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#4a5568"/>
+          </marker>
+          <marker id="arrow-blue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#60a5fa"/>
+          </marker>
+          <marker id="arrow-green" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#34d399"/>
+          </marker>
+          <marker id="arrow-purple" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#a78bfa"/>
+          </marker>
+        </defs>
+
+        <!-- auth_user -->
+        <rect x="10" y="10" width="130" height="40" rx="6" fill="#064e3b" stroke="#34d399" stroke-width="1.5"/>
+        <text x="75" y="26" text-anchor="middle" font-size="11" fill="#34d399" font-weight="700">auth_user</text>
+        <text x="75" y="40" text-anchor="middle" font-size="9" fill="#6ee7b7">django built-in</text>
+
+        <!-- transport -->
+        <rect x="330" y="10" width="130" height="40" rx="6" fill="#1a1c2a" stroke="#6366f1" stroke-width="1.5"/>
+        <text x="395" y="26" text-anchor="middle" font-size="11" fill="#818cf8" font-weight="700">transport</text>
+        <text x="395" y="40" text-anchor="middle" font-size="9" fill="#6366f1">TRUCK | VAN | MOTO</text>
+
+        <!-- warehouses -->
+        <rect x="650" y="10" width="130" height="40" rx="6" fill="#1c2a1e" stroke="#34d399" stroke-width="1.5"/>
+        <text x="715" y="26" text-anchor="middle" font-size="11" fill="#6ee7b7" font-weight="700">warehouses</text>
+        <text x="715" y="40" text-anchor="middle" font-size="9" fill="#34d399">almacén · soft delete</text>
+
+        <!-- suppliers -->
+        <rect x="650" y="100" width="130" height="40" rx="6" fill="#2a1c1c" stroke="#f87171" stroke-width="1.5"/>
+        <text x="715" y="116" text-anchor="middle" font-size="11" fill="#fca5a5" font-weight="700">suppliers</text>
+        <text x="715" y="130" text-anchor="middle" font-size="9" fill="#f87171">proveedor · soft delete</text>
+
+        <!-- customers -->
+        <rect x="10" y="100" width="130" height="40" rx="6" fill="#1e3a5f" stroke="#60a5fa" stroke-width="1.5"/>
+        <text x="75" y="116" text-anchor="middle" font-size="11" fill="#93c5fd" font-weight="700">customers</text>
+        <text x="75" y="130" text-anchor="middle" font-size="9" fill="#60a5fa">soft delete</text>
+
+        <!-- drivers -->
+        <rect x="170" y="55" width="130" height="40" rx="6" fill="#1e1b3a" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="235" y="71" text-anchor="middle" font-size="11" fill="#c4b5fd" font-weight="700">drivers</text>
+        <text x="235" y="85" text-anchor="middle" font-size="9" fill="#a78bfa">user_id · transport_id</text>
+
+        <!-- products -->
+        <rect x="490" y="190" width="130" height="40" rx="6" fill="#1a2a1a" stroke="#34d399" stroke-width="1.5"/>
+        <text x="555" y="206" text-anchor="middle" font-size="11" fill="#6ee7b7" font-weight="700">products</text>
+        <text x="555" y="220" text-anchor="middle" font-size="9" fill="#34d399">supplier + warehouse FK</text>
+
+        <!-- routes -->
+        <rect x="330" y="190" width="130" height="40" rx="6" fill="#1a1e2a" stroke="#fbbf24" stroke-width="1.5"/>
+        <text x="395" y="206" text-anchor="middle" font-size="11" fill="#fde68a" font-weight="700">routes</text>
+        <text x="395" y="220" text-anchor="middle" font-size="9" fill="#fbbf24">origin_warehouse FK</text>
+
+        <!-- route_stops -->
+        <rect x="330" y="280" width="130" height="40" rx="6" fill="#1a1e2a" stroke="#92400e" stroke-width="1"/>
+        <text x="395" y="296" text-anchor="middle" font-size="11" fill="#fde68a" font-weight="600">route_stops</text>
+        <text x="395" y="310" text-anchor="middle" font-size="9" fill="#d97706">UNIQUE(route, order)</text>
+
+        <!-- shipments -->
+        <rect x="170" y="380" width="160" height="50" rx="6" fill="#1a1e1a" stroke="#6366f1" stroke-width="2"/>
+        <text x="250" y="399" text-anchor="middle" font-size="12" fill="#a5b4fc" font-weight="700">shipments</text>
+        <text x="250" y="414" text-anchor="middle" font-size="9" fill="#818cf8">tracking_number AUTO</text>
+        <text x="250" y="425" text-anchor="middle" font-size="9" fill="#6366f1">6 FKs · central module</text>
+
+        <!-- shipment_items -->
+        <rect x="170" y="480" width="160" height="40" rx="6" fill="#1a1e1a" stroke="#4338ca" stroke-width="1"/>
+        <text x="250" y="497" text-anchor="middle" font-size="11" fill="#a5b4fc" font-weight="600">shipment_items</text>
+        <text x="250" y="510" text-anchor="middle" font-size="9" fill="#6366f1">UNIQUE(shipment, product)</text>
+
+        <!-- ── Arrows ─────────────────────────────── -->
+
+        <!-- auth_user → drivers -->
+        <line x1="140" y1="30" x2="170" y2="65" stroke="#34d399" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+        <text x="138" y="55" font-size="9" fill="#34d399">1:1</text>
+
+        <!-- transport → drivers -->
+        <line x1="330" y1="30" x2="300" y2="65" stroke="#a78bfa" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+        <text x="302" y="55" font-size="9" fill="#a78bfa">nullable</text>
+
+        <!-- warehouses → products -->
+        <line x1="715" y1="50" x2="620" y2="190" stroke="#34d399" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+
+        <!-- suppliers → products -->
+        <line x1="715" y1="140" x2="620" y2="190" stroke="#f87171" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- warehouses → routes -->
+        <line x1="650" y1="30" x2="460" y2="200" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- routes → route_stops -->
+        <line x1="395" y1="230" x2="395" y2="280" stroke="#fbbf24" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- customers → shipments -->
+        <line x1="75" y1="140" x2="195" y2="380" stroke="#60a5fa" stroke-width="1.5" marker-end="url(#arrow-blue)"/>
+
+        <!-- drivers → shipments -->
+        <line x1="235" y1="95" x2="235" y2="380" stroke="#a78bfa" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-purple)"/>
+
+        <!-- transport → shipments -->
+        <line x1="395" y1="50" x2="320" y2="390" stroke="#6366f1" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- routes → shipments -->
+        <line x1="395" y1="230" x2="300" y2="385" stroke="#fbbf24" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+
+        <!-- warehouses → shipments (origin) -->
+        <line x1="650" y1="50" x2="330" y2="395" stroke="#34d399" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+
+        <!-- shipments → shipment_items -->
+        <line x1="250" y1="430" x2="250" y2="480" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+        <!-- products → shipment_items -->
+        <line x1="555" y1="230" x2="330" y2="490" stroke="#34d399" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-green)"/>
+
+      </svg>
+    </div>
+  </div>
+
+  <!-- ── Relations table ───────────────────────────── -->
+  <div>
+    <div class="section-title">Tabla de relaciones</div>
+    <div class="relations-grid">
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">drivers</span> <span class="rel-arrow">→</span> <span class="rel-to">auth_user</span></div>
+          <div class="rel-detail">OneToOneField · PROTECT · related_name=driver_profile</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-unique">OneToOne</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">drivers</span> <span class="rel-arrow">→</span> <span class="rel-to">transport</span></div>
+          <div class="rel-detail">ForeignKey · SET_NULL · nullable</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-nullable">nullable</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">products</span> <span class="rel-arrow">→</span> <span class="rel-to">suppliers</span></div>
+          <div class="rel-detail">ForeignKey · PROTECT · related_name=products</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-fk">ManyToOne</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">products</span> <span class="rel-arrow">→</span> <span class="rel-to">warehouses</span></div>
+          <div class="rel-detail">ForeignKey · PROTECT · related_name=products</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-fk">ManyToOne</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">routes</span> <span class="rel-arrow">→</span> <span class="rel-to">warehouses</span></div>
+          <div class="rel-detail">origin_warehouse · PROTECT</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-fk">ManyToOne</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">route_stops</span> <span class="rel-arrow">→</span> <span class="rel-to">routes</span></div>
+          <div class="rel-detail">CASCADE · UNIQUE(route, stop_order)</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-fk">ManyToOne</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">shipments</span> <span class="rel-arrow">→</span> <span class="rel-to">customers</span></div>
+          <div class="rel-detail">ForeignKey · PROTECT · NOT NULL</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-fk">ManyToOne</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">shipments</span> <span class="rel-arrow">→</span> <span class="rel-to">drivers</span></div>
+          <div class="rel-detail">SET_NULL · nullable (asignado post-creación)</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-nullable">nullable</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">shipments</span> <span class="rel-arrow">→</span> <span class="rel-to">transport</span></div>
+          <div class="rel-detail">SET_NULL · nullable</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-nullable">nullable</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">shipments</span> <span class="rel-arrow">→</span> <span class="rel-to">routes</span></div>
+          <div class="rel-detail">SET_NULL · nullable (asignado al despachar)</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-nullable">nullable</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">shipments</span> <span class="rel-arrow">→</span> <span class="rel-to">warehouses</span></div>
+          <div class="rel-detail">origin_warehouse · PROTECT · NOT NULL</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-fk">ManyToOne</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">shipment_items</span> <span class="rel-arrow">→</span> <span class="rel-to">shipments</span></div>
+          <div class="rel-detail">CASCADE · UNIQUE(shipment, product)</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-fk">ManyToOne</span></div>
+      </div>
+
+      <div class="relation-card">
+        <div class="rel-body">
+          <div><span class="rel-from">shipment_items</span> <span class="rel-arrow">→</span> <span class="rel-to">products</span></div>
+          <div class="rel-detail">PROTECT · price snapshot en unit_price_at_time</div>
+        </div>
+        <div class="rel-type"><span class="badge badge-fk">ManyToOne</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Footer ────────────────────────────────────── -->
+  <div style="border-top: 1px solid var(--border); padding-top: 24px; color: var(--text3); font-size: 12px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+    <span>Logística API · Django 6 + DRF 3.17 · <code style="background:var(--tag-bg);padding:1px 6px;border-radius:4px;">drf-spectacular</code> · JWT auth</span>
+    <span>8 módulos · 10 tablas totales</span>
+  </div>
+
+</div>
+
+</body>
+</html>

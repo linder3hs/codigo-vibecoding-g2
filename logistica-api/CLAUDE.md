@@ -30,10 +30,10 @@ Este archivo proporciona orientación a Claude Code (claude.ai/code) al trabajar
 
 Leer **ambos archivos antes de cualquier tarea de desarrollo**:
 
-| Documento | Ruta | Cuándo consultar |
-|---|---|---|
-| Schema de BD | [`docs/database-schema.md`](docs/database-schema.md) | Modelos, migraciones, relaciones, queries |
-| Arquitectura MVP | [`docs/architecture.md`](docs/architecture.md) | Estructura de carpetas, endpoints, patrones de código, orden de desarrollo |
+| Documento        | Ruta                                                 | Cuándo consultar                                                           |
+| ---------------- | ---------------------------------------------------- | -------------------------------------------------------------------------- |
+| Schema de BD     | [`docs/database-schema.md`](docs/database-schema.md) | Modelos, migraciones, relaciones, queries                                  |
+| Arquitectura MVP | [`docs/architecture.md`](docs/architecture.md)       | Estructura de carpetas, endpoints, patrones de código, orden de desarrollo |
 
 ## Schema de base de datos
 
@@ -43,16 +43,16 @@ Referencia completa en [`docs/database-schema.md`](docs/database-schema.md).
 
 Resumen rápido de tablas propias:
 
-| App | Tabla(s) |
-|---|---|
-| `customers` | `customers` |
-| `warehouses` | `warehouses` |
-| `suppliers` | `suppliers` |
-| `products` | `products` |
-| `transport` | `transport` |
-| `drivers` | `drivers` (OneToOne con `auth_user`) |
-| `routes` | `routes`, `route_stops` |
-| `shipments` | `shipments`, `shipment_items` |
+| App          | Tabla(s)                             |
+| ------------ | ------------------------------------ |
+| `customers`  | `customers`                          |
+| `warehouses` | `warehouses`                         |
+| `suppliers`  | `suppliers`                          |
+| `products`   | `products`                           |
+| `transport`  | `transport`                          |
+| `drivers`    | `drivers` (OneToOne con `auth_user`) |
+| `routes`     | `routes`, `route_stops`              |
+| `shipments`  | `shipments`, `shipment_items`        |
 
 ---
 
@@ -139,3 +139,37 @@ logistica-api/
 - DRF instalado (`djangorestframework` en requirements) pero no registrado en `INSTALLED_APPS` aún.
 - Sin archivo `.env` — `python-decouple` disponible pero no conectado a settings.
 - `SECRET_KEY` es el valor inseguro generado por defecto — reemplazar con variable de entorno antes de cualquier despliegue compartido.
+
+---
+
+## Metodología SDD (Spec Driven Development)
+
+**Consultar el agente Orchestrator antes de iniciar cualquier módulo nuevo.**
+
+El agente Orchestrator coordina el flujo obligatorio:
+
+```
+[Spec] → genera spec/[módulo].md
+[Implement] → lee spec → escribe código
+[Validator] → audita código → reporta errores o confirma OK
+[Orchestrator] → decide si corregir o avanzar
+```
+
+### Agentes disponibles en `.claude/agents/`
+
+| Archivo             | Rol                                                       |
+| ------------------- | --------------------------------------------------------- |
+| `orchestrator.md`   | Coordinador del flujo — no escribe código                 |
+| `spec.md`           | Genera `spec/[módulo].md` con requerimientos detallados   |
+| `implement.md`      | Implementa el código Django siguiendo la spec             |
+| `validator.md`      | Audita el código — no escribe código, solo reporta        |
+
+### Carpeta `spec/`
+
+Contiene las especificaciones generadas por el agente Spec:
+- `spec/[módulo].md` — spec del módulo
+- `spec/validation-report-[módulo].md` — reporte de errores del Validator (si existen)
+
+### Regla fundamental
+
+**Implement nunca toca código sin spec. Validator nunca escribe código.**
