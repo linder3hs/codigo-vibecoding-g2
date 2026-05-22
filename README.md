@@ -122,6 +122,39 @@ npm run dev
 
 ---
 
+### Clase SDD — Logística API con Django
+
+> Construimos una API REST de logística con Python + Django + DRF usando la metodología SDD (Spec Driven Development).
+
+| Archivo | Qué contiene |
+| --- | --- |
+| [Proyecto Logística API](./clase-sdd/01-proyecto-logistica-api.md) | Stack, 8 módulos, estructura de carpetas, fases de desarrollo |
+| [SDD — Spec Driven Development](./clase-sdd/02-sdd-metodologia.md) | Qué es SDD, flujo, los 4 agentes, ejemplo paso a paso |
+| [Django REST Framework](./clase-sdd/03-django-rest-framework.md) | ModelViewSet, serializers, soft delete, filtros, recursos anidados |
+| [JWT y Swagger](./clase-sdd/04-jwt-swagger.md) | JWT con SimpleJWT, drf-spectacular, documentación automática |
+| [Glosario de la Clase](./clase-sdd/glosario-clase-sdd.md) | SDD, agentes, DRF, JWT, relaciones Django |
+| [Código del proyecto](./logistica-api/) | API completa — Python + Django 6 + DRF 3.17 |
+
+**Qué construimos:**
+- API REST de logística con 8 módulos Django (warehouses, suppliers, customers, transport, products, routes, drivers, shipments)
+- Metodología SDD con 4 agentes de IA: Spec, Implement, Validator, Orchestrator
+- Autenticación JWT con `djangorestframework-simplejwt`
+- Documentación automática OpenAPI 3.0 con `drf-spectacular`
+- Soft delete, recursos anidados (`/routes/{id}/stops/`), dual serializer pattern
+
+**Para correr el proyecto:**
+```bash
+cd logistica-api
+source .venv/bin/activate
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+# API en http://localhost:8000/api/v1/
+# Docs en http://localhost:8000/api/v1/docs/
+```
+
+---
+
 ## ¿Por dónde empezar?
 
 Si es tu primera vez, sigue las clases **en orden**.

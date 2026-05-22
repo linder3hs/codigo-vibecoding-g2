@@ -1,6 +1,6 @@
 # JWT y Documentación con drf-spectacular
 
-[← Anterior: DRF](./03-django-rest-framework.md) | [Siguiente: Glosario →](./glosario-clase-05.md)
+[← Anterior: DRF](./03-django-rest-framework.md) | [Siguiente: Glosario →](./glosario-clase-sdd.md)
 
 ---
 
@@ -193,4 +193,4 @@ Este comando es útil como check antes de un deploy o para depurar cuando Swagge
 
 ---
 
-[Siguiente: Glosario →](./glosario-clase-05.md)
+[Siguiente: Glosario →](./glosario-clase-sdd.md)
