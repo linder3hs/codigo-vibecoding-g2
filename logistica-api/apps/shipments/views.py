@@ -31,7 +31,7 @@ class ShipmentViewSet(viewsets.ModelViewSet):
             serializer = ShipmentItemSerializer(items, many=True)
             return Response(serializer.data)
 
-        serializer = ShipmentItemSerializer(data=request.data)
+        serializer = ShipmentItemSerializer(data=request.data, context={'request': request, 'view': self})
         serializer.is_valid(raise_exception=True)
         quantity = serializer.validated_data['quantity']
         unit_price = serializer.validated_data['unit_price_at_time']
