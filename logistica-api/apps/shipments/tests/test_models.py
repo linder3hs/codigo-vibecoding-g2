@@ -126,7 +126,7 @@ class ShipmentModelTest(TestCase):
 
     def test_driver_set_null_on_delete(self):
         transport = baker.make(Transport, plate_number='ABC123', is_available=True)
-        user = User.objects.create_user(username='driver_user', password='pass')
+        user = User.objects.create_superuser(username='driver_user', password='pass')
         driver = baker.make(Driver, user=user, transport=transport, license_number='LIC001',
                             license_expiry=datetime.date(2030, 1, 1))
         shipment = Shipment.objects.create(

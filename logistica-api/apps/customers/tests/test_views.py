@@ -9,7 +9,7 @@ class CustomerListTests(APITestCase):
     """Tests del endpoint GET /api/v1/customers/."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -51,7 +51,7 @@ class CustomerCreateTests(APITestCase):
     """Tests del endpoint POST /api/v1/customers/."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.valid_data = {
@@ -157,7 +157,7 @@ class CustomerDetailTests(APITestCase):
     """Tests del endpoint GET /api/v1/customers/{id}/."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.customer = baker.make(Customer, is_active=True)
@@ -190,7 +190,7 @@ class CustomerUpdateTests(APITestCase):
     """Tests de los endpoints PUT y PATCH /api/v1/customers/{id}/."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.customer = baker.make(Customer, is_active=True, country='Colombia')
@@ -261,7 +261,7 @@ class CustomerDeleteTests(APITestCase):
     """Tests del endpoint DELETE /api/v1/customers/{id}/ (soft delete)."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.customer = baker.make(Customer, is_active=True)
@@ -300,7 +300,7 @@ class CustomerFilterTests(APITestCase):
     """Tests de filtrado en GET /api/v1/customers/."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 

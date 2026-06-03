@@ -108,8 +108,8 @@ class DriverModelMetaTests(TestCase):
 
 class DriverModelConstraintTests(TestCase):
     def setUp(self):
-        self.user1 = User.objects.create_user(username='user_c1', password='pass')
-        self.user2 = User.objects.create_user(username='user_c2', password='pass')
+        self.user1 = User.objects.create_superuser(username='user_c1', password='pass')
+        self.user2 = User.objects.create_superuser(username='user_c2', password='pass')
 
     def test_license_number_unique(self):
         Driver.objects.create(
@@ -144,7 +144,7 @@ class DriverModelConstraintTests(TestCase):
 
 class DriverModelForeignKeyTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='user_fk', password='pass')
+        self.user = User.objects.create_superuser(username='user_fk', password='pass')
         self.transport = baker.make(Transport)
 
     def test_transport_on_delete_set_null(self):

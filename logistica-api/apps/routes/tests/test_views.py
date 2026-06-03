@@ -45,7 +45,7 @@ class RouteListCreateTests(APITestCase):
     """Tests de listado y creación de rutas."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='pass123')
+        self.user = User.objects.create_superuser(username='testuser', password='pass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.warehouse = make_warehouse()
@@ -164,7 +164,7 @@ class RouteRetrieveUpdateDeleteTests(APITestCase):
     """Tests de recuperación, actualización y eliminación de rutas."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser2', password='pass123')
+        self.user = User.objects.create_superuser(username='testuser2', password='pass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.warehouse = make_warehouse()
@@ -243,7 +243,7 @@ class RouteFilterTests(APITestCase):
     """Tests de filtrado por origin_warehouse."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='filteruser', password='pass123')
+        self.user = User.objects.create_superuser(username='filteruser', password='pass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.warehouse1 = make_warehouse()
@@ -279,7 +279,7 @@ class RouteStopsTests(APITestCase):
     """Tests para el endpoint anidado /routes/{id}/stops/."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='stopsuser', password='pass123')
+        self.user = User.objects.create_superuser(username='stopsuser', password='pass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.warehouse = make_warehouse()

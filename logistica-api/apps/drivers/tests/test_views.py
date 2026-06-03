@@ -29,7 +29,7 @@ def create_driver_user(username, first_name='Test', last_name='Driver'):
 
 class DriverListTests(APITestCase):
     def setUp(self):
-        self.auth_user = User.objects.create_user(username='api_user', password='pass')
+        self.auth_user = User.objects.create_superuser(username='api_user', password='pass')
         self.client = APIClient()
         self.client.force_authenticate(user=self.auth_user)
 
@@ -77,7 +77,7 @@ class DriverListTests(APITestCase):
 
 class DriverCreateTests(APITestCase):
     def setUp(self):
-        self.auth_user = User.objects.create_user(username='api_user_create', password='pass')
+        self.auth_user = User.objects.create_superuser(username='api_user_create', password='pass')
         self.client = APIClient()
         self.client.force_authenticate(user=self.auth_user)
         self.driver_user = create_driver_user('new_driver')
@@ -200,7 +200,7 @@ class DriverCreateTests(APITestCase):
 
 class DriverRetrieveTests(APITestCase):
     def setUp(self):
-        self.auth_user = User.objects.create_user(username='api_user_retrieve', password='pass')
+        self.auth_user = User.objects.create_superuser(username='api_user_retrieve', password='pass')
         self.client = APIClient()
         self.client.force_authenticate(user=self.auth_user)
         self.driver_user = create_driver_user('retrieve_driver')
@@ -235,7 +235,7 @@ class DriverRetrieveTests(APITestCase):
 
 class DriverUpdateTests(APITestCase):
     def setUp(self):
-        self.auth_user = User.objects.create_user(username='api_user_update', password='pass')
+        self.auth_user = User.objects.create_superuser(username='api_user_update', password='pass')
         self.client = APIClient()
         self.client.force_authenticate(user=self.auth_user)
         self.driver_user = create_driver_user('update_driver')
@@ -293,7 +293,7 @@ class DriverUpdateTests(APITestCase):
 
 class DriverDeleteTests(APITestCase):
     def setUp(self):
-        self.auth_user = User.objects.create_user(username='api_user_delete', password='pass')
+        self.auth_user = User.objects.create_superuser(username='api_user_delete', password='pass')
         self.client = APIClient()
         self.client.force_authenticate(user=self.auth_user)
         self.driver_user = create_driver_user('delete_driver')
@@ -332,7 +332,7 @@ class DriverDeleteTests(APITestCase):
 
 class DriverFilterTests(APITestCase):
     def setUp(self):
-        self.auth_user = User.objects.create_user(username='api_user_filter', password='pass')
+        self.auth_user = User.objects.create_superuser(username='api_user_filter', password='pass')
         self.client = APIClient()
         self.client.force_authenticate(user=self.auth_user)
         self.transport = make_transport()

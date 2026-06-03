@@ -23,7 +23,7 @@ class WarehouseListTests(APITestCase):
     """Tests para GET /api/v1/warehouses/ — listado."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -80,7 +80,7 @@ class WarehouseCreateTests(APITestCase):
     """Tests para POST /api/v1/warehouses/ — creación."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.valid_payload = {
@@ -174,7 +174,7 @@ class WarehouseRetrieveTests(APITestCase):
     """Tests para GET /api/v1/warehouses/{id}/ — detalle."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.warehouse = make_warehouse(
@@ -216,7 +216,7 @@ class WarehouseUpdateTests(APITestCase):
     """Tests para PUT y PATCH /api/v1/warehouses/{id}/ — actualización."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.warehouse = make_warehouse(
@@ -303,7 +303,7 @@ class WarehouseDeleteTests(APITestCase):
     """Tests para DELETE /api/v1/warehouses/{id}/ — soft delete."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.warehouse = make_warehouse()

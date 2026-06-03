@@ -20,7 +20,7 @@ def items_url(shipment_pk):
 class ShipmentItemListCreateTests(APITestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='itemuser', password='pass')
+        self.user = User.objects.create_superuser(username='itemuser', password='pass')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.customer = baker.make(Customer, email='item_c@test.com', is_active=True)

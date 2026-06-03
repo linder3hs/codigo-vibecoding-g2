@@ -135,12 +135,57 @@ npm run dev
 | [Glosario de la Clase](./clase-sdd/glosario-clase-sdd.md) | SDD, agentes, DRF, JWT, relaciones Django |
 | [Código del proyecto](./logistica-api/) | API completa — Python + Django 6 + DRF 3.17 |
 
+**Stack:**
+
+| | |
+| --- | --- |
+| Runtime | Python 3.14 |
+| Framework | Django 6.0.5 + DRF 3.17.1 |
+| Auth | `djangorestframework-simplejwt` 5.5.1 |
+| BD | SQLite (desarrollo) · PostgreSQL (producción) |
+| Docs | `drf-spectacular` 0.29.0 → Swagger UI |
+| Filtros | `django-filter` 25.2 |
+| Tests | `model-bakery` + `coverage` |
+
 **Qué construimos:**
-- API REST de logística con 8 módulos Django (warehouses, suppliers, customers, transport, products, routes, drivers, shipments)
-- Metodología SDD con 4 agentes de IA: Spec, Implement, Validator, Orchestrator
-- Autenticación JWT con `djangorestframework-simplejwt`
-- Documentación automática OpenAPI 3.0 con `drf-spectacular`
-- Soft delete, recursos anidados (`/routes/{id}/stops/`), dual serializer pattern
+
+*Módulos de dominio — 8 apps Django:*
+
+| App | Tabla(s) | Endpoints |
+| --- | --- | --- |
+| `warehouses` | `warehouse` | CRUD `/api/v1/warehouses/` |
+| `suppliers` | `supplier` | CRUD `/api/v1/suppliers/` |
+| `customers` | `customer` | CRUD `/api/v1/customers/` |
+| `products` | `product` | CRUD `/api/v1/products/` |
+| `transport` | `transport` | CRUD `/api/v1/transport/` |
+| `drivers` | `driver` (OneToOne con `auth_user`) | CRUD `/api/v1/drivers/` |
+| `routes` | `route`, `route_stop` | CRUD `/api/v1/routes/` |
+| `shipments` | `shipment`, `shipment_item` | CRUD + `/api/v1/shipments/{id}/items/` |
+
+*Sistema de autenticación y gestión de usuarios:*
+
+| Endpoint | Método | Descripción |
+| --- | --- | --- |
+| `/api/v1/auth/token/` | POST | Login — retorna `access` + `refresh`. El JWT incluye `is_superuser` como claim custom |
+| `/api/v1/auth/token/refresh/` | POST | Renueva el access token |
+| `/api/v1/auth/me/` | GET | Perfil del usuario autenticado (datos + grupos + permisos) |
+| `/api/v1/auth/me/` | PATCH | Actualizar nombre, apellido, email o contraseña propia |
+| `/api/v1/admin/users/` | GET · POST | Listar / crear usuarios — solo superadmin |
+| `/api/v1/admin/users/{id}/` | GET · PATCH · DELETE | Detalle / editar / eliminar usuario |
+| `/api/v1/admin/users/{id}/assign-groups/` | POST | Asignar grupos (roles) a un usuario |
+| `/api/v1/admin/groups/` | GET · POST | Listar / crear grupos |
+| `/api/v1/admin/groups/{id}/` | GET · PUT · DELETE | Detalle / editar / eliminar grupo |
+| `/api/v1/admin/groups/{id}/assign-permissions/` | POST | Asignar permisos de Django a un grupo |
+| `/api/v1/admin/permissions/` | GET | Listar todos los permisos disponibles (`?search=`, `?page_size=`) |
+
+*Patrones de arquitectura:*
+- Metodología SDD con 4 agentes de IA: Spec → Implement → Validator → Orchestrator
+- `IsSuperAdmin` — permission class para endpoints de administración
+- `StrictDjangoModelPermissions` — chequea `view_/add_/change_/delete_<model>` en todos los ViewSets de dominio; superadmins lo pasan automáticamente
+- JWT custom con `is_superuser` en payload
+- Paginación flexible con `page_size` query param
+- Soft delete (`is_active = False`) en todos los módulos de dominio
+- 545 tests (unit + integración) con `model-bakery`
 
 **Para correr el proyecto:**
 ```bash
@@ -151,6 +196,69 @@ python manage.py createsuperuser
 python manage.py runserver
 # API en http://localhost:8000/api/v1/
 # Docs en http://localhost:8000/api/v1/docs/
+```
+
+---
+
+### Logística Frontend — Next.js + React
+
+> Dashboard web para gestionar el sistema de logística. Se conecta a la Logística API y respeta los roles y permisos de cada usuario.
+
+| Código | |
+| --- | --- |
+| [Código del proyecto](./logistica-frontend/) | Frontend completo — Next.js 16 + React 19 + TypeScript |
+
+**Stack:**
+
+| | |
+| --- | --- |
+| Framework | Next.js 16.2 (App Router) |
+| UI | React 19 + TypeScript + Tailwind CSS v4 |
+| Componentes | shadcn/ui (style: base-nova) + Lucide icons |
+| Estado servidor | TanStack Query v5 |
+| Estado cliente | Zustand v5 |
+| Tablas | TanStack Table v8 |
+| Formularios | React Hook Form + Zod v4 |
+| HTTP | Axios — interceptor automático para refresh de token |
+
+**Páginas:**
+
+| Ruta | Descripción |
+| --- | --- |
+| `/login` | Formulario de autenticación |
+| `/dashboard` | Panel principal |
+| `/customers` | CRUD clientes |
+| `/suppliers` | CRUD proveedores |
+| `/warehouses` | CRUD almacenes |
+| `/products` | CRUD productos (con página dedicada crear/editar) |
+| `/transport` | CRUD transportes |
+| `/drivers` | CRUD conductores |
+| `/routes` | CRUD rutas + detalle de paradas |
+| `/shipments` | CRUD envíos + detalle con items |
+| `/profile` | Perfil del usuario — editar nombre, email y contraseña |
+| `/admin/users` | Gestión de usuarios — solo superadmin |
+| `/admin/groups` | Gestión de grupos y sus permisos — solo superadmin |
+
+**Qué construimos:**
+
+- Auth flow completo: login → JWT → refresh automático → logout con limpieza de store
+- Roles y permisos reflejados en la UI:
+  - Sidebar oculta links donde el usuario no tiene `view_<model>`
+  - Botones "Nuevo" ocultos si no tiene `add_<model>`
+  - Botones editar/eliminar en tablas ocultos según `change_`/`delete_<model>`
+  - Sección Administración visible solo a superadmins
+- Superadmin puede crear usuarios, asignar grupos y asignar permisos de Django a grupos
+- Perfil de usuario con datos reales desde `/me/` y formulario de edición
+- Topbar muestra username + email del usuario autenticado
+- Paginación, búsqueda y filtros en todas las tablas
+
+**Para correr el proyecto:**
+```bash
+cd logistica-frontend
+npm install
+npm run dev
+# App en http://localhost:3000
+# (requiere logistica-api corriendo en localhost:8000)
 ```
 
 ---

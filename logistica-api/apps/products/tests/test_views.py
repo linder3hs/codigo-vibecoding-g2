@@ -14,7 +14,7 @@ class ProductListCreateTests(APITestCase):
     """Tests para GET /api/v1/products/ y POST /api/v1/products/."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -146,7 +146,7 @@ class ProductRetrieveUpdateDestroyTests(APITestCase):
     """Tests para GET /api/v1/products/{id}/, PUT, PATCH y DELETE."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser2', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser2', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 

@@ -16,7 +16,7 @@ class SupplierListTests(APITestCase):
     """Tests para GET /api/v1/suppliers/"""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='pass1234')
+        self.user = User.objects.create_superuser(username='testuser', password='pass1234')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -60,7 +60,7 @@ class SupplierCreateTests(APITestCase):
     """Tests para POST /api/v1/suppliers/"""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='pass1234')
+        self.user = User.objects.create_superuser(username='testuser', password='pass1234')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.valid_payload = {
@@ -165,7 +165,7 @@ class SupplierRetrieveTests(APITestCase):
     """Tests para GET /api/v1/suppliers/{id}/"""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='pass1234')
+        self.user = User.objects.create_superuser(username='testuser', password='pass1234')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.supplier = baker.make(Supplier, is_active=True, name='Proveedor Detalle')
@@ -199,7 +199,7 @@ class SupplierUpdateTests(APITestCase):
     """Tests para PUT/PATCH /api/v1/suppliers/{id}/"""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='pass1234')
+        self.user = User.objects.create_superuser(username='testuser', password='pass1234')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.supplier = baker.make(Supplier, is_active=True, name='Original')
@@ -254,7 +254,7 @@ class SupplierDeleteTests(APITestCase):
     """Tests para DELETE /api/v1/suppliers/{id}/ (soft delete)"""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='pass1234')
+        self.user = User.objects.create_superuser(username='testuser', password='pass1234')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.supplier = baker.make(Supplier, is_active=True, name='Para Eliminar')
@@ -295,7 +295,7 @@ class SupplierFilterTests(APITestCase):
     """Tests para los filtros del endpoint de proveedores."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='pass1234')
+        self.user = User.objects.create_superuser(username='testuser', password='pass1234')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         baker.make(Supplier, city='Bogota', country='Colombia', is_active=True, _quantity=2)

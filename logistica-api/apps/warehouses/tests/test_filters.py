@@ -12,7 +12,7 @@ class WarehouseFilterCityCountryTests(APITestCase):
     """Tests de filtros por city y country."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='filteruser', password='testpass123')
+        self.user = User.objects.create_superuser(username='filteruser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -52,7 +52,7 @@ class WarehouseFilterCapacityTests(APITestCase):
     """Tests de filtros por capacidad (capacity_m3_gte y capacity_m3_lte)."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='capfilter', password='testpass123')
+        self.user = User.objects.create_superuser(username='capfilter', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -94,7 +94,7 @@ class WarehouseSearchTests(APITestCase):
     """Tests del filtro de búsqueda por texto (search_fields: name, city, address)."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='searchuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='searchuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -133,7 +133,7 @@ class WarehouseOrderingTests(APITestCase):
     """Tests del ordenamiento mediante ordering_fields."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='orderuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='orderuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 

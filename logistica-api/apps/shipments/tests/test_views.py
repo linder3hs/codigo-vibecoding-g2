@@ -32,7 +32,7 @@ def make_shipment(customer, warehouse, **kwargs):
 class ShipmentListCreateTests(APITestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='pass')
+        self.user = User.objects.create_superuser(username='testuser', password='pass')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.customer = baker.make(Customer, email='c1@test.com', is_active=True)
@@ -168,7 +168,7 @@ class ShipmentListCreateTests(APITestCase):
 class ShipmentRetrieveUpdateDeleteTests(APITestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser2', password='pass')
+        self.user = User.objects.create_superuser(username='testuser2', password='pass')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.customer = baker.make(Customer, email='c2@test.com', is_active=True)
@@ -256,7 +256,7 @@ class ShipmentRetrieveUpdateDeleteTests(APITestCase):
 class ShipmentFilterTests(APITestCase):
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser3', password='pass')
+        self.user = User.objects.create_superuser(username='testuser3', password='pass')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.customer1 = baker.make(Customer, email='filter1@test.com', is_active=True)

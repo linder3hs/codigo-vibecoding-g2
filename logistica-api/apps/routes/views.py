@@ -1,6 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from apps.authentication.permissions import StrictDjangoModelPermissions
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
@@ -11,7 +12,7 @@ from .filters import RouteFilter
 
 class RouteViewSet(viewsets.ModelViewSet):
     serializer_class = RouteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, StrictDjangoModelPermissions]
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     filterset_class = RouteFilter
     search_fields = ['name']

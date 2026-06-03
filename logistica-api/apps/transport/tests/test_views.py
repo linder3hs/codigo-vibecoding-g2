@@ -31,7 +31,7 @@ class TransportListCreateTests(APITestCase):
     """Tests para GET /api/v1/transport/ y POST /api/v1/transport/."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
@@ -151,7 +151,7 @@ class TransportRetrieveUpdateDestroyTests(APITestCase):
     """Tests para GET/PUT/PATCH/DELETE /api/v1/transport/{id}/."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser2', password='testpass123')
+        self.user = User.objects.create_superuser(username='testuser2', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.transport = baker.make(
@@ -264,7 +264,7 @@ class TransportFilterTests(APITestCase):
     """Tests para filtros y búsqueda del TransportViewSet."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='filteruser', password='testpass123')
+        self.user = User.objects.create_superuser(username='filteruser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 

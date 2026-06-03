@@ -93,7 +93,7 @@ class DriverReadSerializerTests(TestCase):
         self.assertEqual(serializer.data['user_username'], 'read_serial_user')
 
     def test_read_serializer_user_full_name_strips_whitespace_when_no_name(self):
-        user_no_name = User.objects.create_user(username='noname_serial', password='pass')
+        user_no_name = User.objects.create_superuser(username='noname_serial', password='pass')
         driver = Driver.objects.create(
             user=user_no_name,
             license_number='LIC-READ-002',

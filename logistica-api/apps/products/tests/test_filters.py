@@ -14,7 +14,7 @@ class ProductFilterTests(APITestCase):
     """Tests para los filtros de ProductFilter y los filtros de búsqueda/ordenación."""
 
     def setUp(self):
-        self.user = User.objects.create_user(username='filteruser', password='testpass123')
+        self.user = User.objects.create_superuser(username='filteruser', password='testpass123')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 

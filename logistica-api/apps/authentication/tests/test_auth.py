@@ -13,7 +13,7 @@ from rest_framework.test import APITestCase, APIClient
 
 TOKEN_URL = '/api/v1/auth/token/'
 REFRESH_URL = '/api/v1/auth/token/refresh/'
-PROTECTED_URL = '/api/v1/customers/'  # endpoint que requiere autenticación
+PROTECTED_URL = '/api/v1/auth/me/'  # endpoint que requiere autenticación
 
 
 class TokenObtainTests(APITestCase):
