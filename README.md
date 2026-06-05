@@ -263,6 +263,71 @@ npm run dev
 
 ---
 
+### Logística Frontend — Testing
+
+> Suite de tests completa para el frontend de logística. Cubre los 9 módulos de negocio con 5 capas de prueba cada uno: API client, hooks, columnas, schemas y componentes.
+
+**Stack de testing:**
+
+| | |
+| --- | --- |
+| Runner | Vitest 4.x (jsdom) |
+| HTTP mock | MSW v2 (`msw/node`, `http`, `HttpResponse`) |
+| UI testing | Testing Library + userEvent v14 |
+| Schemas | Zod (mismos schemas que producción) |
+
+**Capas de test por módulo:**
+
+| Capa | Qué prueba | Patrón principal |
+| --- | --- | --- |
+| `__tests__/lib/api/` | Llamadas HTTP reales — métodos, URLs, payloads, errores | MSW intercepta, se verifica body y status |
+| `__tests__/hooks/` | TanStack Query hooks — queryKeys, invalidaciones, datos | `renderHook` + `makeWrapper` + `vi.spyOn(qc, "invalidateQueries")` |
+| `__tests__/columns/` | Celdas de TanStack Table — formato, badges, acciones | `renderCellWithValue` / `renderCellWithRow` helpers |
+| `__tests__/schemas/` | Validación Zod — casos válidos, errores, mensajes | `safeParse` directo contra los schemas de producción |
+| `__tests__/components/` | Formularios React — render, validación, submit | `renderWithQuery` + MSW + userEvent |
+
+**Módulos cubiertos:**
+
+| Módulo | Archivos de test | Highlights |
+| --- | --- | --- |
+| `customers` | api · hooks · columns · schemas · CustomerForm | customer_type badge, soft delete |
+| `warehouses` | api · hooks · columns · schemas · WarehouseForm | lat/lng opcionales, capacidad |
+| `suppliers` | api · hooks · columns · schemas · SupplierForm | tax_id opcional → null en payload |
+| `products` | api · hooks · columns · schemas · ProductForm | FK a supplier + warehouse |
+| `transport` | api · hooks · columns · schemas · TransportForm | transport_type badge |
+| `drivers` | api · hooks · columns · schemas · DriverForm | license_expiry DatePicker mock |
+| `routes` | api · hooks · columns · schemas · RouteForm · StopForm | sub-recurso `/routes/:id/stops/`, RouteMeta warehouseMap |
+| `shipments` | api · hooks · columns · schemas · ShipmentForm · ItemForm | sub-recurso `/shipments/:id/items/`, `__none__` sentinel para FKs opcionales |
+| **auth/lib** | auth · axios · login schema | interceptor JWT, refresh automático |
+
+**Patrones técnicos aprendidos:**
+
+- **MSW servidor único** — un solo `server` global en `test/setup.ts`; cada test agrega handlers temporales con `server.use()` que se limpian en `afterEach`
+- **`makeWrapper(queryClient)`** — QueryClient externo para poder hacer `vi.spyOn(qc, "invalidateQueries")` y verificar invalidaciones exactas
+- **`makeQueryClient()`** — `retry: false, gcTime: 0` para que los tests fallen rápido sin reintentos
+- **Base UI Select en jsdom** — `user.click(combobox)` abre el dropdown; `findByRole("option")` + `fireEvent.pointerDown` + `fireEvent.click` para seleccionar sin fallar por `pointer-events: none` del posicionador
+- **`z.number().optional()` rechaza NaN** — inputs `type="number"` vacíos dan `valueAsNumber: NaN`; fix en tests: `fireEvent.change(input, { target: { value: "0", valueAsNumber: 0 } })`
+- **OXC parser en TSX** — `getValue: <T>()` es ambiguo (JSX vs genérico); fix: `(() => value) as unknown as () => never`
+- **DatePicker mock** — `vi.mock("@/components/ui/date-picker")` reemplaza Popover+Calendar por un `<input>` nativo con `aria-label`
+
+**Resultado final:**
+
+```
+Test Files  46 passed (46)
+     Tests  775 passed (775)
+  Duration  8.66s
+```
+
+**Para correr los tests:**
+```bash
+cd logistica-frontend
+npx vitest run           # una sola pasada
+npx vitest               # modo watch
+npx vitest run --coverage  # con reporte de cobertura
+```
+
+---
+
 ## ¿Por dónde empezar?
 
 Si es tu primera vez, sigue las clases **en orden**.
