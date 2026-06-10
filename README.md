@@ -328,6 +328,58 @@ npx vitest run --coverage  # con reporte de cobertura
 
 ---
 
+### Logística Frontend — Tests E2E (Playwright)
+
+> Suite de tests end-to-end que valida los flujos reales del dashboard contra el backend en ejecución. Cubre los 5 módulos principales con seeding por API, cleanup automático y storageState para no repetir login en cada test.
+
+**Stack de testing:**
+
+| | |
+| --- | --- |
+| Runner | Playwright 1.x (Chromium) |
+| Auth | `storageState` — un solo login real guardado en `playwright/.auth/user.json` |
+| Seeding | Fixture `api` — POST/DELETE directo a `logistica-api` antes/después de cada test |
+| Modo | `fullyParallel: true` + `test.describe.configure({ mode: "serial" })` en specs con `beforeAll`/`afterAll` compartidos |
+
+**Specs:**
+
+| Archivo | Tests | Qué cubre |
+| --- | --- | --- |
+| `e2e/auth.setup.ts` | setup | Login real → guarda `storageState` para el resto de la suite |
+| `e2e/auth.spec.ts` | 6 | Login válido, credenciales inválidas, redirect sin sesión, logout, refresh automático de token |
+| `e2e/login.spec.ts` | 2 | Login básico sin storageState |
+| `e2e/warehouses.spec.ts` | 6 | CRUD completo con Dialog (crear, editar, eliminar, validación Zod, búsqueda) |
+| `e2e/products.spec.ts` | 7 | CRUD con páginas separadas, selects de supplier + warehouse, SKU duplicado (error de backend) |
+| `e2e/drivers.spec.ts` | 6 | CRUD con seeding de `auth_user` + transport, DatePicker, campos derivados del user (`user_full_name`, `email`, `username`) |
+| `e2e/shipments.spec.ts` | 5 | Módulo central: seeding de 5 dependencias, `tracking_number` auto-generado, agregar `ShipmentItem`, dialog de eliminar, transición de status PENDING → CONFIRMED |
+
+**Patrones técnicos aprendidos:**
+
+- **`storageState` global** — la sesión del setup se inyecta en todos los tests via `playwright.config.ts`; no hay login manual en cada spec
+- **Fixture `api` personalizada** — `test.extend` añade `seed(endpoint, payload) → id`, `remove(endpoint, id)`, `list(endpoint, params)` con JWT propio; se usa en `beforeAll`/`afterAll` para estado compartido y en `try/finally` para cleanup por test
+- **`test.describe.configure({ mode: "serial" })`** — garantiza que `beforeAll`/`afterAll` corran una sola vez por describe aunque `fullyParallel` esté activo globalmente
+- **shadcn `<Select>` con estados de carga** — `placeholder` cambia de `"Cargando..."` a `"Seleccionar X"` cuando el fetch termina; `getByRole("combobox").filter({ hasText: "Seleccionar X" }).toBeVisible()` espera implícitamente el fin de carga antes de interactuar
+- **DatePicker (react-day-picker v10)** — días renderizados como `role="gridcell"`; `getByRole("gridcell").filter({ hasText: /^15$/ }).first().click()` funciona sin mock
+- **Zod v4 con `defaultValues: 0`** — submit sin tocar el campo dispara `.positive()` (`"Too small: expected number to be >0"`), no el mensaje custom. `input.clear()` convierte el valor a `NaN` y sí dispara el mensaje custom
+- **`exact: true` en `getByText`** — previene que `"#3"` haga match parcial con `"#30"`, `"#33"`, etc. en páginas con múltiples IDs
+- **Cleanup en orden inverso de dependencias Django** — `PROTECT` en FKs obliga a borrar `Shipment` antes que `Customer`/`Warehouse`; `Transport` sin soft-delete requiere hard-delete explícito
+
+**Resultado final:**
+
+```
+32 passed (26.9s)
+```
+
+**Para correr los tests:**
+```bash
+cd logistica-frontend
+npm run e2e           # suite completa (requiere logistica-api en :8000 y Next.js en :3000)
+npm run e2e:ui        # modo UI interactivo
+npx playwright test e2e/shipments.spec.ts --reporter=line  # spec individual
+```
+
+---
+
 ## ¿Por dónde empezar?
 
 Si es tu primera vez, sigue las clases **en orden**.

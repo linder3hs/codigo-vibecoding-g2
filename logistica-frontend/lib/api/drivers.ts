@@ -1,10 +1,12 @@
-import axiosInstance from "@/lib/axios"
-import type { PaginatedResponse } from "@/types/common"
-import type { Driver, DriverCreate, DriverParams } from "@/types/driver"
+import axiosInstance from "@/lib/axios";
+import type { PaginatedResponse } from "@/types/common";
+import type { Driver, DriverCreate, DriverParams } from "@/types/driver";
 
 export const driversApi = {
   list: (params?: DriverParams) =>
-    axiosInstance.get<PaginatedResponse<Driver>>("drivers/", { params }).then((r) => r.data),
+    axiosInstance
+      .get<PaginatedResponse<Driver>>("drivers/", { params })
+      .then((r) => r.data),
 
   get: (id: number) =>
     axiosInstance.get<Driver>(`drivers/${id}/`).then((r) => r.data),
@@ -17,4 +19,4 @@ export const driversApi = {
 
   remove: (id: number) =>
     axiosInstance.delete(`drivers/${id}/`).then(() => undefined as void),
-}
+};

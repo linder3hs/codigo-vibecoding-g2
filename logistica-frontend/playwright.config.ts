@@ -40,10 +40,7 @@ export default defineConfig({
   },
 
   projects: [
-    {
-      name: "setup",
-      testMatch: /auth\.setup\.ts/,
-    },
+    // "chromium" primero → es el proyecto seleccionado por defecto en --ui
     {
       name: "chromium",
       use: {
@@ -51,6 +48,11 @@ export default defineConfig({
         storageState: "playwright/.auth/user.json",
       },
       dependencies: ["setup"],
+    },
+    // "setup" segundo — fixture de auth, no aparece seleccionado por defecto en --ui
+    {
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
     },
   ],
 });

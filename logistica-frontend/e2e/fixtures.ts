@@ -15,10 +15,10 @@ interface ApiFixture {
 
 export const test = base.extend<{ api: ApiFixture }>({
   api: async ({}, use) => {
-    // Contexto HTTP independiente del browser — obtiene su propio JWT
-    const ctx = await baseRequest.newContext({ baseURL: API_URL });
+    // Sin baseURL — se construyen URLs absolutas para evitar problemas de resolución
+    const ctx = await baseRequest.newContext();
 
-    const tokenRes = await ctx.post("/auth/token/", {
+    const tokenRes = await ctx.post(`${API_URL}/auth/token/`, {
       data: { username: USERNAME, password: PASSWORD },
     });
     if (!tokenRes.ok()) {
@@ -30,7 +30,7 @@ export const test = base.extend<{ api: ApiFixture }>({
 
     const api: ApiFixture = {
       async seed(endpoint, payload) {
-        const res = await ctx.post(`/${endpoint}/`, {
+        const res = await ctx.post(`${API_URL}/${endpoint}/`, {
           data: payload,
           headers: authHeaders,
         });
@@ -44,7 +44,7 @@ export const test = base.extend<{ api: ApiFixture }>({
       },
 
       async remove(endpoint, id) {
-        const res = await ctx.delete(`/${endpoint}/${id}/`, {
+        const res = await ctx.delete(`${API_URL}/${endpoint}/${id}/`, {
           headers: authHeaders,
         });
         // 204 No Content o 404 son aceptables en cleanup
@@ -55,8 +55,8 @@ export const test = base.extend<{ api: ApiFixture }>({
 
       async list(endpoint, params) {
         const url = params
-          ? `/${endpoint}/?${new URLSearchParams(params)}`
-          : `/${endpoint}/`;
+          ? `${API_URL}/${endpoint}/?${new URLSearchParams(params)}`
+          : `${API_URL}/${endpoint}/`;
         const res = await ctx.get(url, { headers: authHeaders });
         if (!res.ok()) {
           throw new Error(`list(${endpoint}) falló (${res.status()})`);

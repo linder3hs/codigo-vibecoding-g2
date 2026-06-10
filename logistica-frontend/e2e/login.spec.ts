@@ -13,8 +13,8 @@ test.describe("Login", () => {
   });
 
   test("login válido redirige a /dashboard", async ({ page }) => {
-    await page.getByLabel("Usuario").fill(USERNAME);
-    await page.getByLabel("Contraseña").fill(PASSWORD);
+    await page.locator('input[name="username"]').fill(USERNAME);
+    await page.locator('input[name="password"]').fill(PASSWORD);
     await page.getByRole("button", { name: "Iniciar sesión" }).click();
 
     await page.waitForURL("**/dashboard**", { timeout: 10_000 });
@@ -22,8 +22,8 @@ test.describe("Login", () => {
   });
 
   test("credenciales inválidas muestran mensaje de error", async ({ page }) => {
-    await page.getByLabel("Usuario").fill("usuario_inexistente");
-    await page.getByLabel("Contraseña").fill("clave_incorrecta");
+    await page.locator('input[name="username"]').fill("usuario_inexistente");
+    await page.locator('input[name="password"]').fill("clave_incorrecta");
     await page.getByRole("button", { name: "Iniciar sesión" }).click();
 
     await expect(

@@ -14,9 +14,7 @@ setup("autenticar usuario de test", async ({ page, request }) => {
   });
 
   if (!res.ok()) {
-    throw new Error(
-      `Login API falló (${res.status()}): ${await res.text()}`
-    );
+    throw new Error(`Login API falló (${res.status()}): ${await res.text()}`);
   }
 
   const { access, refresh } = await res.json();
@@ -29,7 +27,7 @@ setup("autenticar usuario de test", async ({ page, request }) => {
       localStorage.setItem("logistica_access_token", accessToken);
       localStorage.setItem("logistica_refresh_token", refreshToken);
     },
-    { accessToken: access, refreshToken: refresh }
+    { accessToken: access, refreshToken: refresh },
   );
 
   // Persiste el storage state (localStorage + cookies) del origen

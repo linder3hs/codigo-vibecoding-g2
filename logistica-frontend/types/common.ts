@@ -1,22 +1,22 @@
 export interface PaginatedResponse<T> {
-  count: number
-  next: string | null
-  previous: string | null
-  results: T[]
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
 }
 
 export interface ApiError {
-  detail?: string
-  non_field_errors?: string[]
-  [field: string]: string | string[] | undefined
+  detail?: string;
+  non_field_errors?: string[];
+  [field: string]: string | string[] | undefined;
 }
 
 export interface TokenPair {
-  access: string
-  refresh: string
+  access: string;
+  refresh: string;
 }
 
 export interface LoginCredentials {
-  username: string
-  password: string
+  username: string;
+  password: string;
 }
