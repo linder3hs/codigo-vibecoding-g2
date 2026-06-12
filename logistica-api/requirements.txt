@@ -22,3 +22,7 @@ uritemplate==4.2.0
 # Testing
 coverage==7.14.1
 model-bakery==1.23.4
+
+# production
+gunicorn==23.0.0
+whitenoise==6.8.2
