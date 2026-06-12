@@ -142,6 +142,59 @@ logistica-api/
 
 ---
 
+## Despliegue en Railway
+
+El backend se despliega en [Railway](https://railway.app) por CLI. Railway detecta Django,
+instala `requirements.txt` y ejecuta el `Procfile`.
+
+### Configuración del proyecto
+
+- **Settings separados por entorno** (`config/settings/`): `development.py` (default local) y `production.py`.
+  En Railway hay que forzar producción con la variable `DJANGO_SETTINGS_MODULE=config.settings.production`.
+- **`Procfile`** — un solo proceso `web` que encadena collectstatic + migrate + gunicorn:
+  ```
+  web: python manage.py collectstatic --noinput && python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 3
+  ```
+- **Base de datos**: `production.py` usa `dj_database_url.config(default=config('DATABASE_URL'))`.
+  Railway inyecta `DATABASE_URL` automáticamente al añadir un plugin de PostgreSQL.
+- **Estáticos**: servidos por `whitenoise` (`CompressedManifestStaticFilesStorage`), recolectados en `staticfiles/`.
+- **Hosts/CSRF**: `production.py` lee `RAILWAY_PUBLIC_DOMAIN` (lo provee Railway) y lo agrega a
+  `ALLOWED_HOSTS` + `CSRF_TRUSTED_ORIGINS`.
+
+### Variables de entorno requeridas en Railway
+
+| Variable                 | Valor                              | Nota                                            |
+| ------------------------ | ---------------------------------- | ----------------------------------------------- |
+| `DJANGO_SETTINGS_MODULE` | `config.settings.production`       | Obligatoria — sin ella usa settings de desarrollo |
+| `SECRET_KEY`             | clave segura                       | No usar el default inseguro                      |
+| `DEBUG`                  | `False`                            |                                                 |
+| `ALLOWED_HOSTS`          | dominios separados por coma        | El dominio de Railway se agrega automáticamente |
+| `CORS_ALLOWED_ORIGINS`   | orígenes del frontend, separados por coma |                                          |
+| `DATABASE_URL`           | (auto)                             | Inyectada por el plugin PostgreSQL de Railway   |
+| `RAILWAY_PUBLIC_DOMAIN`  | (auto)                             | Inyectada por Railway                           |
+
+### Comandos de despliegue (CLI)
+
+```bash
+# Instalar CLI (una vez)
+npm i -g @railway/cli
+
+railway login                  # autenticación por navegador
+railway link                   # vincular el repo a un proyecto/servicio existente
+railway up                     # construir y desplegar el directorio actual
+
+# Variables
+railway variables                                          # listar
+railway variables --set "DJANGO_SETTINGS_MODULE=config.settings.production"
+
+railway logs                   # ver logs del servicio
+railway open                   # abrir el proyecto en el navegador
+```
+
+> El `release`/migraciones se ejecuta dentro del `Procfile` en cada deploy, no como comando manual.
+
+---
+
 ## Metodología SDD (Spec Driven Development)
 
 **Consultar el agente Orchestrator antes de iniciar cualquier módulo nuevo.**
