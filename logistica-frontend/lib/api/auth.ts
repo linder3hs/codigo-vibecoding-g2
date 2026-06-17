@@ -11,9 +11,12 @@ async function login(credentials: LoginCredentials): Promise<TokenPair> {
   return data;
 }
 
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000/api/v1/";
+
 async function refreshToken(refresh: string): Promise<{ access: string }> {
   const { data } = await axios.post<{ access: string }>(
-    "http://localhost:8000/api/v1/auth/token/refresh/",
+    `${API_URL}auth/token/refresh/`,
     { refresh },
   );
   return data;
