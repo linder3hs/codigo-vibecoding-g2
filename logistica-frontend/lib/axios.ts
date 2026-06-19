@@ -28,6 +28,11 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // FormData: dejar que el navegador ponga multipart/form-data con boundary.
+    // Sin esto, el Content-Type JSON por defecto rompe la subida de archivos.
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    }
     return config;
   },
   (error) => Promise.reject(error),
