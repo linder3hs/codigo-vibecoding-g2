@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { ProductThumb } from "@/components/modules/products/ProductThumb"
 import type { Product } from "@/types/product"
 
 interface ColPerms { canChange?: boolean; canDelete?: boolean }
@@ -12,6 +13,17 @@ export function getProductColumns(
 ): ColumnDef<Product>[] {
   const { canChange = true, canDelete = true } = perms
   return [
+    {
+      id: "image",
+      header: "",
+      cell: ({ row }) => (
+        <ProductThumb
+          src={row.original.image_url}
+          alt={row.original.name}
+          className="h-10 w-10"
+        />
+      ),
+    },
     { accessorKey: "name", header: "Nombre" },
     { accessorKey: "sku", header: "SKU" },
     { accessorKey: "category", header: "Categoría" },

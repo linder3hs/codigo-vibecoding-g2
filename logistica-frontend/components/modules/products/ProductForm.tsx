@@ -3,6 +3,8 @@
 import { useForm, Controller } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
+import { useState } from "react"
+import { Upload, X } from "lucide-react"
 import axios from "axios"
 import {
   Form,
@@ -22,6 +24,7 @@ import {
   SelectTrigger,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { ProductThumb } from "@/components/modules/products/ProductThumb"
 import { useCreateProduct, useUpdateProduct } from "@/lib/hooks/use-products"
 import { useSupplierList } from "@/lib/hooks/use-suppliers"
 import { useWarehouseList } from "@/lib/hooks/use-warehouses"
@@ -59,6 +62,41 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
   const { data: warehousesData, isPending: loadingWarehouses } = useWarehouseList({ page: 1 })
 
   const isPending = createMutation.isPending || updateMutation.isPending
+
+  // Imagen: File para subir, "remove" para quitar la actual, null = no tocar.
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imageError, setImageError] = useState<string | null>(null)
+  const [removeImage, setRemoveImage] = useState(false)
+
+  // Preview: archivo nuevo > imagen actual (si no se quitó) > placeholder
+  const previewSrc = imageFile
+    ? URL.createObjectURL(imageFile)
+    : removeImage
+      ? null
+      : product?.image_url ?? null
+
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    if (!file.type.startsWith("image/")) {
+      setImageError("El archivo debe ser una imagen")
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setImageError("La imagen no puede superar 5 MB")
+      return
+    }
+    setImageError(null)
+    setRemoveImage(false)
+    setImageFile(file)
+  }
+
+  function clearImage() {
+    setImageFile(null)
+    setImageError(null)
+    // Solo marcar para borrar en backend si el producto ya tenía imagen
+    setRemoveImage(!!product?.image_url)
+  }
 
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
@@ -123,6 +161,10 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
       stock_quantity: values.stock_quantity,
       description: values.description || undefined,
     }
+
+    // Adjuntar imagen solo si cambió: File nueva, o null para quitarla
+    if (imageFile) payload.image = imageFile
+    else if (removeImage) payload.image = null
 
     if (product) {
       updateMutation.mutate({ id: product.id, data: payload }, { onSuccess, onError: handleBackendErrors })
@@ -368,6 +410,46 @@ export function ProductForm({ product, onSuccess, onCancel }: ProductFormProps) 
             )}
           />
         </div>
+
+        {/* imagen */}
+        <FormItem>
+          <FormLabel>Imagen (opcional)</FormLabel>
+          <div className="flex items-center gap-4">
+            <ProductThumb
+              src={previewSrc}
+              alt="Vista previa del producto"
+              className="h-20 w-20"
+            />
+            <div className="flex flex-col gap-2">
+              <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted">
+                <Upload className="h-4 w-4" />
+                {previewSrc ? "Cambiar imagen" : "Subir imagen"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  onChange={handleImageChange}
+                />
+              </label>
+              {previewSrc && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-fit text-destructive"
+                  onClick={clearImage}
+                >
+                  <X className="h-4 w-4 mr-1" />
+                  Quitar imagen
+                </Button>
+              )}
+              <p className="text-xs text-muted-foreground">JPG o PNG, máx. 5 MB</p>
+            </div>
+          </div>
+          {imageError && (
+            <p className="text-destructive text-sm font-medium">{imageError}</p>
+          )}
+        </FormItem>
 
         {/* description */}
         <FormField

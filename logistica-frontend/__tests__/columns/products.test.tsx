@@ -20,6 +20,7 @@ const baseProduct: Product = {
   unit_price: "9500.00",
   stock_quantity: 200,
   description: "Caja de cartón corrugado",
+  image_url: null,
   is_active: true,
   created_at: "2026-03-01T10:00:00Z",
   updated_at: "2026-03-01T10:00:00Z",
@@ -65,15 +66,15 @@ describe("estructura de columnas", () => {
 
     expect(keys).toEqual(
       expect.arrayContaining([
-        "name", "sku", "category", "supplier", "warehouse",
+        "image", "name", "sku", "category", "supplier", "warehouse",
         "unit_price", "stock_quantity", "actions",
       ]),
     )
   })
 
-  it("tiene exactamente 8 columnas con permisos por defecto", () => {
+  it("tiene exactamente 9 columnas con permisos por defecto", () => {
     const cols = getProductColumns(vi.fn(), vi.fn())
-    expect(cols).toHaveLength(8)
+    expect(cols).toHaveLength(9)
   })
 })
 
@@ -201,11 +202,11 @@ describe("columna actions", () => {
     expect(cols.some((c) => c.id === "actions")).toBe(false)
   })
 
-  it("sin actions hay exactamente 7 columnas", () => {
+  it("sin actions hay exactamente 8 columnas", () => {
     const cols = getProductColumns(vi.fn(), vi.fn(), {
       canChange: false,
       canDelete: false,
     })
-    expect(cols).toHaveLength(7)
+    expect(cols).toHaveLength(8)
   })
 })

@@ -12,6 +12,7 @@ export interface Product {
   unit_price: string;
   stock_quantity: number;
   description: string | null;
+  image_url: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -30,6 +31,8 @@ export interface ProductCreate {
   unit_price: number;
   stock_quantity: number;
   description?: string;
+  // File para subir nueva imagen; null para quitarla; undefined para no tocarla
+  image?: File | null;
 }
 
 export interface ProductParams {
