@@ -14,6 +14,7 @@ export interface Product {
   description: string | null;
   image_url: string | null;
   is_active: boolean;
+  stripe_price_id?: string | null;
   created_at: string;
   updated_at: string;
 }

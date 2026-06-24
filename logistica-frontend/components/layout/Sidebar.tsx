@@ -15,6 +15,7 @@ import {
   X,
   UserCog,
   ShieldCheck,
+  ShoppingCart,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUIStore } from "@/lib/store/ui"
@@ -52,6 +53,7 @@ const navGroups = [
     links: [
       { label: "Productos", href: "/products", icon: Package, model: "product" },
       { label: "Envíos", href: "/shipments", icon: PackageCheck, model: "shipment" },
+      { label: "Tienda", href: "/cart", icon: ShoppingCart, model: null },
     ],
   },
   {
