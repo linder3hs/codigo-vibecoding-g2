@@ -9,3 +9,12 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.gcloud.GoogleCloudStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage',
+    },
+}

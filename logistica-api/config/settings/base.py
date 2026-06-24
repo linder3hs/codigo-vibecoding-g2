@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_filters',
     'drf_spectacular',
+    'storages',
     # Local apps
     'apps.authentication',
     'apps.products',
@@ -29,6 +30,7 @@ INSTALLED_APPS = [
     'apps.routes',
     'apps.drivers',
     'apps.shipments',
+    'apps.payments',
 ]
 
 MIDDLEWARE = [
@@ -111,5 +113,20 @@ SPECTACULAR_SETTINGS = {
 
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:3000,http://localhost:5173',
+    default='http://localhost:3000,http://localhost:5173,https://logistica-frontend-pi.vercel.app',
 ).split(',')
+
+# Google Cloud Storage (imágenes de productos)
+GS_BUCKET_NAME = config('GS_BUCKET_NAME', default='mercados-189423-images')
+GS_PROJECT_ID = config('GS_PROJECT_ID', default='mercados-189423')
+GS_QUERYSTRING_AUTH = True            # genera signed URLs en .url
+GS_DEFAULT_ACL = None                 # obligatorio con UBLA (sin ACLs por objeto)
+GS_EXPIRATION = timedelta(minutes=30)  # vida de la signed URL
+GS_FILE_OVERWRITE = False             # no sobreescribir; renombra si colisiona
+
+# Stripe
+STRIPE_SECRET_KEY     = config('STRIPE_SECRET_KEY', default='')
+STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
+STRIPE_SUCCESS_URL    = config('STRIPE_SUCCESS_URL', default='http://localhost:3000/payment/success')
+STRIPE_CANCEL_URL     = config('STRIPE_CANCEL_URL', default='http://localhost:3000/payment/cancel')
+STRIPE_API_VERSION    = '2026-05-27.dahlia'

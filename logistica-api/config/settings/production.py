@@ -19,12 +19,21 @@ MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 STORAGES = {
     'default': {
-        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        'BACKEND': 'storages.backends.gcloud.GoogleCloudStorage',
     },
     'staticfiles': {
         'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
     },
 }
+
+# Credenciales de GCS: Railway inyecta variables, no archivos.
+# El JSON completo de la service account viaja en la env var GCS_CREDENTIALS_JSON.
+import json
+from google.oauth2 import service_account
+
+GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
+    json.loads(config('GCS_CREDENTIALS_JSON'))
+)
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 

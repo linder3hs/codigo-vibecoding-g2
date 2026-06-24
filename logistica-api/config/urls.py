@@ -19,4 +19,5 @@ urlpatterns = [
     path('api/v1/', include('apps.drivers.urls')),
     path('api/v1/', include('apps.shipments.urls')),
     path('api/v1/', include('apps.authentication.urls')),
+    path('api/v1/', include('apps.payments.urls')),
 ]

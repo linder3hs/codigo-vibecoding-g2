@@ -16,7 +16,10 @@ class Product(models.Model):
     depth_cm = models.DecimalField(max_digits=8, decimal_places=2)
     unit_price = models.DecimalField(max_digits=12, decimal_places=2)
     stock_quantity = models.IntegerField(default=0)
+    image = models.ImageField(upload_to='products/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    stripe_product_id = models.CharField(max_length=100, null=True, blank=True, db_index=True)
+    stripe_price_id   = models.CharField(max_length=100, null=True, blank=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
